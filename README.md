@@ -4,8 +4,8 @@ Componentes Utilizados:
 - Arduino Uno
 - 2 Sensores Ultrassônicos HC-SR04
 - Servo Motor SG90
-- LED Vermelho
-- Resistores
+- LED
+- Resistor 110 ohms
 - Protoboard e Jumpers
 
 Funcionamento:
