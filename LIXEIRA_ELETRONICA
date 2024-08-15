@@ -1,0 +1,66 @@
+#include <Servo.h> // Biblioteca para controle do servo motor
+
+// Variáveis e objetos
+Servo servo_9; // Instância do servo motor
+int distanciaTampa = 0; // Variável para distância medida pelo sensor da tampa
+int distanciaLixeira = 0; // Variável para distância medida pelo sensor dentro da lixeira
+
+// Definição dos pinos
+const int trigPinTampa = 7; // Pino TRIG do sensor ultrassônico para a tampa
+const int echoPinTampa = 6; // Pino ECHO do sensor ultrassônico para a tampa
+const int trigPinLixeira = 5; // Pino TRIG do sensor ultrassônico dentro da lixeira
+const int echoPinLixeira = 4; // Pino ECHO do sensor ultrassônico dentro da lixeira
+const int ledVermelho = 3; // Pino do LED vermelho
+
+// Função para ler a distância usando o sensor ultrassônico
+long readUltrasonicDistance(int triggerPin, int echoPin) {
+  pinMode(triggerPin, OUTPUT); // Define o pino do trigger como saída
+  digitalWrite(triggerPin, LOW); // Garante que o pino esteja em LOW
+  delayMicroseconds(2); // Espera 2 microsegundos
+  digitalWrite(triggerPin, HIGH); // Envia um pulso HIGH de 10 microsegundos
+  delayMicroseconds(10);
+  digitalWrite(triggerPin, LOW); // Desliga o trigger
+  pinMode(echoPin, INPUT); // Define o pino do echo como entrada
+  // Retorna o tempo que o pulso leva para retornar
+  return pulseIn(echoPin, HIGH);
+}
+
+void setup() {
+  servo_9.attach(9, 500, 1500); // Conecta o servo motor ao pino 9, ajuste os valores min e max de acordo com o datasheet do SG90
+  servo_9.write(0); // Inicializa o servo motor na posição 0 (fechado)
+  pinMode(ledVermelho, OUTPUT); // Define o pino do LED como saída
+  Serial.begin(9600); // Inicia a comunicação serial
+  delay(2000); // Espera 2 segundos para estabilizar os sensores e o servo motor
+}
+
+void loop() {
+  // Leitura do sensor ultrassônico da tampa
+  distanciaTampa = 0.01723 * readUltrasonicDistance(trigPinTampa, echoPinTampa);
+  // Leitura do sensor ultrassônico dentro da lixeira
+  distanciaLixeira = 0.01723 * readUltrasonicDistance(trigPinLixeira, echoPinLixeira);
+
+  // Imprime as distâncias no monitor serial
+  Serial.print("Distância da Tampa: ");
+  Serial.print(distanciaTampa);
+  Serial.print(" cm, Distância da Lixeira: ");
+  Serial.print(distanciaLixeira);
+  Serial.println(" cm");
+
+  // Lógica para abertura da tampa
+  if (distanciaTampa <= 50) {
+    servo_9.write(90); // Abre a tampa em 90 graus
+    delay(5000); // Espera 5 segundos com a tampa aberta
+    servo_9.write(0); // Fecha a tampa
+  }
+
+  // Lógica para verificar se a lixeira está cheia
+  if (distanciaLixeira <= 10) { // Ajuste a distância conforme necessário
+    digitalWrite(ledVermelho, HIGH); // Acende o LED vermelho indicando que a lixeira está cheia
+  } else {
+    digitalWrite(ledVermelho, LOW); // Apaga o LED vermelho se a lixeira não estiver cheia
+  }
+
+  delay(1000); // Espera 1 segundo antes da próxima leitura
+}
+
+
