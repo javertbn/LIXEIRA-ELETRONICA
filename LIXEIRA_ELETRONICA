@@ -47,7 +47,7 @@ void loop() {
   Serial.println(" cm");
 
   // Lógica para abertura da tampa
-  if (distanciaTampa <= 50) {
+  if (distanciaTampa <= 10) {
     servo_9.write(90); // Abre a tampa em 90 graus
     delay(5000); // Espera 5 segundos com a tampa aberta
     servo_9.write(0); // Fecha a tampa
